@@ -18,10 +18,9 @@ static void *stat_thread_main(void *arg)
   struct timespec ts1, ts2;
   struct stat *buf;
   int fd = fileno((FILE *)arg);
-  long i;
 
   while (!thread_create_done)
-    MEASURE_ITER("stat", i, ts1, ts2, 
+    MEASURE_SINGLE("stat", ts1, ts2, 
 		{ fstat(fd, buf); });
 }
 
@@ -34,7 +33,7 @@ static void *create_thread_main(void *arg)
 {
   struct timespec ts1, ts2;
   unsigned long status;
-  long i;
+  long i = 0;
   int rc;
   pthread_t thread;
 

@@ -2,7 +2,7 @@ SRCS=$(shell ls *.c)
 OBJS=$(SRCS:.c=.o)
 TARGETS=$(OBJS:.o=)
 CFLAGS := -g 
-LIBS := -pthread
+LIBS := -pthread -lrt
 
 .c.o:
 	gcc $(CFLAGS) -c -o $@ $<
