@@ -59,7 +59,6 @@ int main(int argc, char **argv)
 
     sscanf(argv[1], "%d", &nr_threads);
     sscanf(argv[2], "%d", &nr_nested_threads);
-    fprintf(stderr, "create %d threads\n", nr_threads);
 
     threads = malloc(sizeof(pthread_t) * nr_threads);
     if (threads == NULL) {

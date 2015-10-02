@@ -20,7 +20,7 @@ int main(int argc, char **argv)
   sscanf(argv[1], "%d", &nr_children);
   setbuf(stdout, NULL);
 
-  fprintf(stderr, "create %d children\n", nr_children);
+  /*fprintf(stderr, "create %d children\n", nr_children);*/
 
   for (i = 0; i < nr_children; i++)
     MEASURE_SINGLE_EXCEPTION("fork", ts1, ts2,
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
       }
     );
 
-  fprintf(stderr, "wait for children\n");
+  /*fprintf(stderr, "wait for children\n");*/
   do {
     MEASURE_SINGLE_EXCEPTION("wait", ts1, ts2,
         { wpid = wait(&status); },

@@ -18,7 +18,7 @@ void child_thread(int nr_gchildren)
   int status = 0;
   pid_t grandchild_pid, wpid;
 
-  fprintf(stderr, "create %d grandchildren\n", nr_gchildren);
+  /*fprintf(stderr, "create %d grandchildren\n", nr_gchildren);*/
   for (j = 0; j < nr_gchildren; j++) {
     MEASURE_SINGLE_EXCEPTION("fork2", ts1, ts2,
       { grandchild_pid = fork(); },
@@ -28,7 +28,7 @@ void child_thread(int nr_gchildren)
       });
   }
 
-  fprintf(stderr, "wait for grandchildren %d\n", getpid());
+  /*fprintf(stderr, "wait for grandchildren %d\n", getpid());*/
   do {
     MEASURE_SINGLE_EXCEPTION("wait2", ts1, ts2,
       { wpid = wait(&status); },
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
   sscanf(argv[2], "%d", &nr_gchildren);
 
   setbuf(stdout, NULL);
-  fprintf(stderr, "create %d children\n", nr_children);
+  /*fprintf(stderr, "create %d children\n", nr_children);*/
   for (i = 0; i < nr_children; i++)
     MEASURE_SINGLE_EXCEPTION("fork", ts1, ts2,
       { child_pid = fork(); },
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
         exit(0);
       });
 
-  fprintf(stderr, "wait for children %d\n", getpid());
+  /*fprintf(stderr, "wait for children %d\n", getpid());*/
   do {
     MEASURE_SINGLE_EXCEPTION("wait", ts1, ts2,
       { wpid = wait(&status); },
