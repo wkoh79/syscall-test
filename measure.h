@@ -9,10 +9,9 @@
   { target_block; }\
   clock_gettime(CLOCK_REALTIME, &ts2);\
   \
-  fprintf(stdout, "%s elapsed_time: %9.9f ", name, sub_ts(&ts2, &ts1));\
-  fprintf(stdout, "[%4ld] ", iter);\
-  fprintf(stdout, "start: %ld.%9ld ", ts1.tv_sec, ts1.tv_nsec);\
-  fprintf(stdout, "end: %ld.%9ld\n", ts2.tv_sec, ts2.tv_nsec);\
+  fprintf(stdout, "%s elapsed_time: %9.9f [%4ld] start: %ld.%9ld end: %ld.%9ld\n",\
+		  name, sub_ts(&ts2, &ts1), iter, ts1.tv_sec, ts1.tv_nsec, \
+		  ts2.tv_sec, ts2.tv_nsec);\
 }
 
 #define MEASURE_SINGLE(name, ts1, ts2, target_block)\
@@ -21,9 +20,9 @@
   { target_block; }\
   clock_gettime(CLOCK_REALTIME, &ts2);\
   \
-  fprintf(stdout, "%s elapsed_time: %9.9f ", name, sub_ts(&ts2, &ts1));\
-  fprintf(stdout, "start: %ld.%9ld ", ts1.tv_sec, ts1.tv_nsec);\
-  fprintf(stdout, "end: %ld.%9ld\n", ts2.tv_sec, ts2.tv_nsec);\
+  fprintf(stdout, "%s elapsed_time: %9.9f start: %ld.%9ld end: %ld.%9ld\n",\
+		  name, sub_ts(&ts2, &ts1), ts1.tv_sec, ts1.tv_nsec, \
+		  ts2.tv_sec, ts2.tv_nsec);\
 }
 
 #define MEASURE_SINGLE_EXCEPTION(name, ts1, ts2, target_block, exception)\
@@ -33,9 +32,9 @@
   clock_gettime(CLOCK_REALTIME, &ts2);\
   { exception; }\
   \
-  fprintf(stdout, "%s elapsed_time: %9.9f ", name, sub_ts(&ts2, &ts1));\
-  fprintf(stdout, "start: %ld.%9ld ", ts1.tv_sec, ts1.tv_nsec);\
-  fprintf(stdout, "end: %ld.%9ld\n", ts2.tv_sec, ts2.tv_nsec);\
+  fprintf(stdout, "%s elapsed_time: %9.9f start: %ld.%9ld end: %ld.%9ld\n",\
+		  name, sub_ts(&ts2, &ts1), ts1.tv_sec, ts1.tv_nsec, \
+		  ts2.tv_sec, ts2.tv_nsec);\
 }
 
 static inline double sub_ts(struct timespec *t1, struct timespec *t2)

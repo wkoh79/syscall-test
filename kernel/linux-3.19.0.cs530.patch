@@ -1,0 +1,591 @@
+diff -urNp linux-3.19.0.vanilla/fs/file.c linux-3.19.0.cs530/fs/file.c
+--- linux-3.19.0.vanilla/fs/file.c	2015-02-09 11:54:22.000000000 +0900
++++ linux-3.19.0.cs530/fs/file.c	2015-10-03 19:04:03.593649936 +0900
+@@ -23,6 +23,12 @@
+ #include <linux/rcupdate.h>
+ #include <linux/workqueue.h>
+ 
++/*
++ * added for syscall measurement
++ */
++#include <cs530.h>
++#define CS530
++
+ int sysctl_nr_open __read_mostly = 1024*1024;
+ int sysctl_nr_open_min = BITS_PER_LONG;
+ /* our max() is unusable in constant expressions ;-/ */
+@@ -263,7 +269,12 @@ struct files_struct *dup_fd(struct files
+ 	new_fdt->open_fds = newf->open_fds_init;
+ 	new_fdt->fd = &newf->fd_array[0];
+ 
++#ifdef CS530
++	MEASURE_SINGLE("spin_lock(oldf->file_lock)",
++			spin_lock(&oldf->file_lock));
++#else
+ 	spin_lock(&oldf->file_lock);
++#endif
+ 	old_fdt = files_fdtable(oldf);
+ 	open_files = count_open_files(old_fdt);
+ 
+@@ -294,7 +305,12 @@ struct files_struct *dup_fd(struct files
+ 		 * who knows it may have a new bigger fd table. We need
+ 		 * the latest pointer.
+ 		 */
++#ifdef CS530
++		MEASURE_SINGLE("spin_lock(oldf->file_lock)",
++				spin_lock(&oldf->file_lock));
++#else
+ 		spin_lock(&oldf->file_lock);
++#endif
+ 		old_fdt = files_fdtable(oldf);
+ 		open_files = count_open_files(old_fdt);
+ 	}
+@@ -336,7 +352,12 @@ struct files_struct *dup_fd(struct files
+ 		memset(&new_fdt->close_on_exec[start], 0, left);
+ 	}
+ 
++#ifdef CS530
++	MEASURE_SINGLE("rcu_assign_pointer",
++			rcu_assign_pointer(newf->fdt, new_fdt));
++#else
+ 	rcu_assign_pointer(newf->fdt, new_fdt);
++#endif
+ 
+ 	return newf;
+ 
+diff -urNp linux-3.19.0.vanilla/include/cs530.h linux-3.19.0.cs530/include/cs530.h
+--- linux-3.19.0.vanilla/include/cs530.h	1970-01-01 09:00:00.000000000 +0900
++++ linux-3.19.0.cs530/include/cs530.h	2015-10-03 19:03:28.193688843 +0900
+@@ -0,0 +1,31 @@
++#ifndef __CS530_H__
++#define __CS530_H__
++
++#define MEASURE_SINGLE(name, target_block) \
++{\
++	cycle_t start, end;\
++	int processor_id = smp_processor_id();\
++	start = get_cycles();\
++	target_block;\
++	end = get_cycles();\
++	if (processor_id == smp_processor_id())\
++		printk(KERN_DEBUG\
++			"  %s elapsed_cycles: %lld\n",\
++			name,\
++			end - start);\
++}
++#define MEASURE_SINGLE_COND(name, cond, target_block) \
++if (cond) {\
++	cycle_t start, end;\
++	int processor_id = smp_processor_id();\
++	start = get_cycles();\
++	target_block;\
++	end = get_cycles();\
++	if (processor_id == smp_processor_id())\
++		printk(KERN_DEBUG\
++			"  %s elapsed_cycles: %lld\n",\
++			name,\
++			end - start);\
++}
++
++#endif /* ifdef __CS530_H__ */
+diff -urNp linux-3.19.0.vanilla/kernel/fork.c linux-3.19.0.cs530/kernel/fork.c
+--- linux-3.19.0.vanilla/kernel/fork.c	2015-10-03 16:59:36.000000000 +0900
++++ linux-3.19.0.cs530/kernel/fork.c	2015-10-03 19:03:35.529680771 +0900
+@@ -107,6 +107,12 @@ int lockdep_tasklist_lock_is_held(void)
+ EXPORT_SYMBOL_GPL(lockdep_tasklist_lock_is_held);
+ #endif /* #ifdef CONFIG_PROVE_RCU */
+ 
++/*
++ * added for syscall measurement
++ */
++#include <cs530.h>
++#define CS530
++
+ int nr_processes(void)
+ {
+ 	int cpu;
+@@ -371,6 +377,20 @@ static int dup_mmap(struct mm_struct *mm
+ 	int retval;
+ 	unsigned long charge;
+ 
++#ifdef CS530
++	MEASURE_SINGLE("uprobe_start_dup_mmap",
++			uprobe_start_dup_mmap());
++	MEASURE_SINGLE("down_write(mmap_sem)",
++			down_write(&oldmm->mmap_sem));
++	flush_cache_dup_mm(oldmm);
++	MEASURE_SINGLE("uprobe_dup_mmap",
++			uprobe_dup_mmap(oldmm, mm));
++	/*
++	 * Not linked in yet - no deadlock potential:
++	 */
++	MEASURE_SINGLE("down_write_nested(mmap-sem)",
++		down_write_nested(&mm->mmap_sem, SINGLE_DEPTH_NESTING));
++#else
+ 	uprobe_start_dup_mmap();
+ 	down_write(&oldmm->mmap_sem);
+ 	flush_cache_dup_mm(oldmm);
+@@ -379,6 +399,7 @@ static int dup_mmap(struct mm_struct *mm
+ 	 * Not linked in yet - no deadlock potential:
+ 	 */
+ 	down_write_nested(&mm->mmap_sem, SINGLE_DEPTH_NESTING);
++#endif
+ 
+ 	mm->total_vm = oldmm->total_vm;
+ 	mm->shared_vm = oldmm->shared_vm;
+@@ -388,10 +409,20 @@ static int dup_mmap(struct mm_struct *mm
+ 	rb_link = &mm->mm_rb.rb_node;
+ 	rb_parent = NULL;
+ 	pprev = &mm->mmap;
++#ifdef CS530
++	MEASURE_SINGLE("ksm_fork",
++		{retval = ksm_fork(mm, oldmm);});
++#else
+ 	retval = ksm_fork(mm, oldmm);
++#endif
+ 	if (retval)
+ 		goto out;
++#ifdef CS530
++	MEASURE_SINGLE("khugepaged_fork",
++		{retval = khugepaged_fork(mm, oldmm);});
++#else
+ 	retval = khugepaged_fork(mm, oldmm);
++#endif
+ 	if (retval)
+ 		goto out;
+ 
+@@ -421,8 +452,18 @@ static int dup_mmap(struct mm_struct *mm
+ 		if (retval)
+ 			goto fail_nomem_policy;
+ 		tmp->vm_mm = mm;
++#ifdef CS530
++		{
++			int ret;
++			MEASURE_SINGLE("anon_vma_fork",
++				{ ret = anon_vma_fork(tmp, mpnt); });
++			if (ret)
++				goto fail_nomem_anon_vma_fork;
++		}
++#else
+ 		if (anon_vma_fork(tmp, mpnt))
+ 			goto fail_nomem_anon_vma_fork;
++#endif
+ 		tmp->vm_flags &= ~VM_LOCKED;
+ 		tmp->vm_next = tmp->vm_prev = NULL;
+ 		file = tmp->vm_file;
+@@ -433,7 +474,12 @@ static int dup_mmap(struct mm_struct *mm
+ 			vma_get_file(tmp);
+ 			if (tmp->vm_flags & VM_DENYWRITE)
+ 				atomic_dec(&inode->i_writecount);
++#ifdef CS530
++			MEASURE_SINGLE("i_mmap_lock_write",
++					i_mmap_lock_write(mapping));
++#else
+ 			i_mmap_lock_write(mapping);
++#endif
+ 			if (tmp->vm_flags & VM_SHARED)
+ 				atomic_inc(&mapping->i_mmap_writable);
+ 			flush_dcache_mmap_lock(mapping);
+@@ -469,7 +515,12 @@ static int dup_mmap(struct mm_struct *mm
+ 		rb_parent = &tmp->vm_rb;
+ 
+ 		mm->map_count++;
++#ifdef CS530
++		MEASURE_SINGLE("copy_page_range",
++			{retval = copy_page_range(mm, oldmm, mpnt);});
++#else
+ 		retval = copy_page_range(mm, oldmm, mpnt);
++#endif
+ 
+ 		if (tmp->vm_ops && tmp->vm_ops->open)
+ 			tmp->vm_ops->open(tmp);
+@@ -478,11 +529,19 @@ static int dup_mmap(struct mm_struct *mm
+ 			goto out;
+ 	}
+ 	/* a new mm has just been created */
++#ifdef CS530
++	MEASURE_SINGLE("arch_dup_mmap", arch_dup_mmap(oldmm, mm));
++#else
+ 	arch_dup_mmap(oldmm, mm);
++#endif
+ 	retval = 0;
+ out:
+ 	up_write(&mm->mmap_sem);
++#ifdef CS530
++	MEASURE_SINGLE("flush_tlb_mm", flush_tlb_mm(oldmm));
++#else
+ 	flush_tlb_mm(oldmm);
++#endif
+ 	up_write(&oldmm->mmap_sem);
+ 	uprobe_end_dup_mmap();
+ 	return retval;
+@@ -584,8 +643,18 @@ static struct mm_struct *mm_init(struct
+ 	if (mm_alloc_pgd(mm))
+ 		goto fail_nopgd;
+ 
++#ifdef CS530
++	{
++		int ret;
++		MEASURE_SINGLE("init_new_context",
++			{ ret = init_new_context(p, mm); });
++		if (ret)
++			goto fail_nocontext;
++	}
++#else
+ 	if (init_new_context(p, mm))
+ 		goto fail_nocontext;
++#endif
+ 
+ 	return mm;
+ 
+@@ -856,6 +925,23 @@ static struct mm_struct *dup_mm(struct t
+ 
+ 	memcpy(mm, oldmm, sizeof(*mm));
+ 
++#ifdef CS530
++	{
++		static struct mm_struct *_mm;
++		MEASURE_SINGLE("mm_init",
++			{ _mm = mm_init(mm, tsk); });
++		if (!_mm)
++			goto fail_nomem;
++	}
++
++	MEASURE_SINGLE("dup_mm_exe_file",
++		dup_mm_exe_file(oldmm, mm));
++
++	MEASURE_SINGLE("dup_mmap",
++			{err = dup_mmap(mm, oldmm);});
++	if (err)
++		goto free_pt;
++#else
+ 	if (!mm_init(mm, tsk))
+ 		goto fail_nomem;
+ 
+@@ -864,6 +950,7 @@ static struct mm_struct *dup_mm(struct t
+ 	err = dup_mmap(mm, oldmm);
+ 	if (err)
+ 		goto free_pt;
++#endif
+ 
+ 	mm->hiwater_rss = get_mm_rss(mm);
+ 	mm->hiwater_vm = mm->total_vm;
+@@ -915,7 +1002,11 @@ static int copy_mm(unsigned long clone_f
+ 	}
+ 
+ 	retval = -ENOMEM;
++#ifdef CS530
++	MEASURE_SINGLE("dup_mm", { mm = dup_mm(tsk); });
++#else
+ 	mm = dup_mm(tsk);
++#endif
+ 	if (!mm)
+ 		goto fail_nomem;
+ 
+@@ -933,7 +1024,12 @@ static int copy_fs(unsigned long clone_f
+ 	struct fs_struct *fs = current->fs;
+ 	if (clone_flags & CLONE_FS) {
+ 		/* tsk->fs is already what we want */
++#ifdef CS530
++		MEASURE_SINGLE("spin_lock(fs->lock)",
++				spin_lock(&fs->lock));
++#else
+ 		spin_lock(&fs->lock);
++#endif
+ 		if (fs->in_exec) {
+ 			spin_unlock(&fs->lock);
+ 			return -EAGAIN;
+@@ -965,7 +1061,11 @@ static int copy_files(unsigned long clon
+ 		goto out;
+ 	}
+ 
++#ifdef CS530
++	MEASURE_SINGLE("dup_fd", { newf = dup_fd(oldf, &error); });
++#else
+ 	newf = dup_fd(oldf, &error);
++#endif
+ 	if (!newf)
+ 		goto out;
+ 
+@@ -1235,12 +1335,22 @@ static struct task_struct *copy_process(
+ 			return ERR_PTR(-EINVAL);
+ 	}
+ 
++#ifdef CS530
++	MEASURE_SINGLE("security_task_create",
++		{ retval = security_task_create(clone_flags); });
++#else
+ 	retval = security_task_create(clone_flags);
++#endif
+ 	if (retval)
+ 		goto fork_out;
+ 
+ 	retval = -ENOMEM;
++#ifdef CS530
++	MEASURE_SINGLE("dup_task_struct",
++		{ p = dup_task_struct(current); });
++#else
+ 	p = dup_task_struct(current);
++#endif
+ 	if (!p)
+ 		goto fork_out;
+ 
+@@ -1261,7 +1371,12 @@ static struct task_struct *copy_process(
+ 	}
+ 	current->flags &= ~PF_NPROC_EXCEEDED;
+ 
++#ifdef CS530
++	MEASURE_SINGLE("copy_creds",
++			{ retval = copy_creds(p, clone_flags);});
++#else
+ 	retval = copy_creds(p, clone_flags);
++#endif
+ 	if (retval < 0)
+ 		goto bad_fork_free;
+ 
+@@ -1277,12 +1392,22 @@ static struct task_struct *copy_process(
+ 	if (!try_module_get(task_thread_info(p)->exec_domain->module))
+ 		goto bad_fork_cleanup_count;
+ 
++#ifdef CS530
++	MEASURE_SINGLE("delayacct_tsk_init",
++			{ delayacct_tsk_init(p); });
++#else
+ 	delayacct_tsk_init(p);	/* Must remain after dup_task_struct() */
++#endif
+ 	p->flags &= ~(PF_SUPERPRIV | PF_WQ_WORKER);
+ 	p->flags |= PF_FORKNOEXEC;
+ 	INIT_LIST_HEAD(&p->children);
+ 	INIT_LIST_HEAD(&p->sibling);
++#ifdef CS530
++	MEASURE_SINGLE("rcu_copy_process",
++			{ rcu_copy_process(p); });
++#else
+ 	rcu_copy_process(p);
++#endif
+ 	p->vfork_done = NULL;
+ 	spin_lock_init(&p->alloc_lock);
+ 
+@@ -1318,7 +1443,12 @@ static struct task_struct *copy_process(
+ 		threadgroup_change_begin(current);
+ 	cgroup_fork(p);
+ #ifdef CONFIG_NUMA
++#ifdef CS530
++	MEASURE_SINGLE("mpol_dup",
++		{ p->mempolicy = mpol_dup(p->mempolicy); });
++#else
+ 	p->mempolicy = mpol_dup(p->mempolicy);
++#endif
+ 	if (IS_ERR(p->mempolicy)) {
+ 		retval = PTR_ERR(p->mempolicy);
+ 		p->mempolicy = NULL;
+@@ -1371,6 +1501,47 @@ static struct task_struct *copy_process(
+ 	if (retval)
+ 		goto bad_fork_cleanup_perf;
+ 	/* copy all the process information */
++#ifdef CS530
++	MEASURE_SINGLE("shm_init_task",
++			shm_init_task(p));
++	MEASURE_SINGLE("copy_semundo",
++		{ retval = copy_semundo(clone_flags, p); });
++	if (retval)
++		goto bad_fork_cleanup_audit;
++	MEASURE_SINGLE("copy_files",
++		{ retval = copy_files(clone_flags, p); });
++	if (retval)
++		goto bad_fork_cleanup_semundo;
++	MEASURE_SINGLE("copy_fs",
++		{ retval = copy_fs(clone_flags, p); });
++	if (retval)
++		goto bad_fork_cleanup_files;
++	MEASURE_SINGLE("copy_sighand",
++		{ retval = copy_sighand(clone_flags, p); });
++	if (retval)
++		goto bad_fork_cleanup_fs;
++	MEASURE_SINGLE("copy_signal",
++		{ retval = copy_signal(clone_flags, p); });
++	if (retval)
++		goto bad_fork_cleanup_sighand;
++	MEASURE_SINGLE("copy_mm",
++		{ retval = copy_mm(clone_flags, p); });
++	if (retval)
++		goto bad_fork_cleanup_signal;
++	MEASURE_SINGLE("copy_namespaces",
++		{ retval = copy_namespaces(clone_flags, p); });
++	if (retval)
++		goto bad_fork_cleanup_mm;
++	MEASURE_SINGLE("copy_io",
++		{ retval = copy_io(clone_flags, p); });
++	if (retval)
++		goto bad_fork_cleanup_namespaces;
++	MEASURE_SINGLE("copy_thread",
++		{ retval = copy_thread(clone_flags, stack_start, stack_size,
++				p);});
++	if (retval)
++		goto bad_fork_cleanup_io;
++#else
+ 	shm_init_task(p);
+ 	retval = copy_semundo(clone_flags, p);
+ 	if (retval)
+@@ -1399,10 +1570,16 @@ static struct task_struct *copy_process(
+ 	retval = copy_thread(clone_flags, stack_start, stack_size, p);
+ 	if (retval)
+ 		goto bad_fork_cleanup_io;
++#endif
+ 
+ 	if (pid != &init_struct_pid) {
+ 		retval = -ENOMEM;
++#ifdef CS530
++		MEASURE_SINGLE("alloc_pid",
++			{pid = alloc_pid(p->nsproxy->pid_ns_for_children);});
++#else
+ 		pid = alloc_pid(p->nsproxy->pid_ns_for_children);
++#endif
+ 		if (!pid)
+ 			goto bad_fork_cleanup_io;
+ 	}
+@@ -1467,7 +1644,12 @@ static struct task_struct *copy_process(
+ 	 * Make it visible to the rest of the system, but dont wake it up yet.
+ 	 * Need tasklist lock for parent etc handling!
+ 	 */
++#ifdef CS530
++	MEASURE_SINGLE("write_lock_irq(tasklist_lock)",
++		{ write_lock_irq(&tasklist_lock); });
++#else
+ 	write_lock_irq(&tasklist_lock);
++#endif
+ 
+ 	/* CLONE_PARENT re-uses the old parent */
+ 	if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
+@@ -1478,13 +1660,23 @@ static struct task_struct *copy_process(
+ 		p->parent_exec_id = current->self_exec_id;
+ 	}
+ 
++#ifdef CS530
++	MEASURE_SINGLE("spin_lock(siglock)",
++		{ spin_lock(&current->sighand->siglock); });
++#else
+ 	spin_lock(&current->sighand->siglock);
++#endif
+ 
+ 	/*
+ 	 * Copy seccomp details explicitly here, in case they were changed
+ 	 * before holding sighand lock.
+ 	 */
++#ifdef CS530
++	MEASURE_SINGLE("copy_seccomp",
++		{ copy_seccomp(p); });
++#else
+ 	copy_seccomp(p);
++#endif
+ 
+ 	/*
+ 	 * Process group and session signals need to be delivered to just the
+@@ -1494,7 +1686,12 @@ static struct task_struct *copy_process(
+ 	 * A fatal signal pending means that current will exit, so the new
+ 	 * thread can't slip out of an OOM kill (or normal SIGKILL).
+ 	*/
++#ifdef CS530
++	MEASURE_SINGLE("recalc_sigpending",
++			recalc_sigpending());
++#else
+ 	recalc_sigpending();
++#endif
+ 	if (signal_pending(current)) {
+ 		spin_unlock(&current->sighand->siglock);
+ 		write_unlock_irq(&tasklist_lock);
+@@ -1540,6 +1737,19 @@ static struct task_struct *copy_process(
+ 	syscall_tracepoint_update(p);
+ 	write_unlock_irq(&tasklist_lock);
+ 
++#ifdef CS530
++	MEASURE_SINGLE("proc_fork_connector", proc_fork_connector(p));
++	MEASURE_SINGLE("cgroup_post_fork", cgroup_post_fork(p));
++	if (clone_flags & CLONE_THREAD)
++		MEASURE_SINGLE("threadgroup_change_end",
++				threadgroup_change_end(current));
++	MEASURE_SINGLE("perf_event_fork", perf_event_fork(p));
++
++	MEASURE_SINGLE("trace_task_newtask",
++			trace_task_newtask(p, clone_flags));
++	MEASURE_SINGLE("uprobe_copy_process",
++			uprobe_copy_process(p, clone_flags));
++#else
+ 	proc_fork_connector(p);
+ 	cgroup_post_fork(p);
+ 	if (clone_flags & CLONE_THREAD)
+@@ -1548,6 +1758,7 @@ static struct task_struct *copy_process(
+ 
+ 	trace_task_newtask(p, clone_flags);
+ 	uprobe_copy_process(p, clone_flags);
++#endif
+ 
+ 	return p;
+ 
+@@ -1651,8 +1862,14 @@ long do_fork(unsigned long clone_flags,
+ 			trace = 0;
+ 	}
+ 
++#ifdef CS530
++	MEASURE_SINGLE("copy_process",
++			{ p = copy_process(clone_flags, stack_start, stack_size,
++				 child_tidptr, NULL, trace);});
++#else
+ 	p = copy_process(clone_flags, stack_start, stack_size,
+ 			 child_tidptr, NULL, trace);
++#endif
+ 	/*
+ 	 * Do this prior waking up the new thread - the thread pointer
+ 	 * might get invalid after that point, if the thread exits quickly.
+@@ -1663,11 +1880,22 @@ long do_fork(unsigned long clone_flags,
+ 
+ 		trace_sched_process_fork(current, p);
+ 
++#ifdef CS530
++		MEASURE_SINGLE("get_task_pid",
++				{ pid = get_task_pid(p, PIDTYPE_PID);});
++#else
+ 		pid = get_task_pid(p, PIDTYPE_PID);
++#endif
+ 		nr = pid_vnr(pid);
+ 
++#ifdef CS530
++		MEASURE_SINGLE_COND("put_user",
++			(clone_flags & CLONE_PARENT_SETTID),
++			{ put_user(nr, parent_tidptr); });
++#else
+ 		if (clone_flags & CLONE_PARENT_SETTID)
+ 			put_user(nr, parent_tidptr);
++#endif
+ 
+ 		if (clone_flags & CLONE_VFORK) {
+ 			p->vfork_done = &vfork;
+@@ -1675,7 +1903,12 @@ long do_fork(unsigned long clone_flags,
+ 			get_task_struct(p);
+ 		}
+ 
++#ifdef CS530
++		MEASURE_SINGLE("wake_up_new_task",
++			{ wake_up_new_task(p); });
++#else
+ 		wake_up_new_task(p);
++#endif
+ 
+ 		/* forking complete and child started to run, tell ptracer */
+ 		if (unlikely(trace))
+@@ -1746,7 +1979,15 @@ SYSCALL_DEFINE5(clone, unsigned long, cl
+ 		 int, tls_val)
+ #endif
+ {
++#define CS530
++#ifdef CS530
++	long ret;
++	MEASURE_SINGLE("do_fork",
++	{ ret = do_fork(clone_flags, newsp, 0, parent_tidptr, child_tidptr);});
++	return ret;
++#else
+ 	return do_fork(clone_flags, newsp, 0, parent_tidptr, child_tidptr);
++#endif
+ }
+ #endif
+ 
