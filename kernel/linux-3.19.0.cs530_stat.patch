@@ -1,0 +1,112 @@
+diff -urNp linux-3.19.0.cs530/fs/ext4/inode.c linux-3.19.0.cs530_stat/fs/ext4/inode.c
+--- linux-3.19.0.cs530/fs/ext4/inode.c	2015-10-03 16:59:36.000000000 +0900
++++ linux-3.19.0.cs530_stat/fs/ext4/inode.c	2015-10-03 21:29:29.169837585 +0900
+@@ -49,6 +49,9 @@
+ 
+ #define MPAGE_DA_EXTENT_TAIL 0x01
+ 
++#include <cs530.h>
++#define CS530 
++
+ static __u32 ext4_inode_csum(struct inode *inode, struct ext4_inode *raw,
+ 			      struct ext4_inode_info *ei)
+ {
+@@ -4598,7 +4601,11 @@ int ext4_getattr(struct vfsmount *mnt, s
+ 	unsigned long long delalloc_blocks;
+ 
+ 	inode = dentry->d_inode;
++#ifdef CS530
++	MEASURE_SINGLE("generic_fillattr", generic_fillattr(inode, stat));
++#else
+ 	generic_fillattr(inode, stat);
++#endif
+ 
+ 	/*
+ 	 * If there is inline data in the inode, the inode will normally not
+diff -urNp linux-3.19.0.cs530/fs/stat.c linux-3.19.0.cs530_stat/fs/stat.c
+--- linux-3.19.0.cs530/fs/stat.c	2015-02-09 11:54:22.000000000 +0900
++++ linux-3.19.0.cs530_stat/fs/stat.c	2015-10-03 21:29:52.693822429 +0900
+@@ -18,6 +18,9 @@
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+ 
++#include <cs530.h>
++#define CS530
++
+ void generic_fillattr(struct inode *inode, struct kstat *stat)
+ {
+ 	stat->dev = inode->i_sb->s_dev;
+@@ -53,10 +56,23 @@ int vfs_getattr_nosec(struct path *path,
+ {
+ 	struct inode *inode = path->dentry->d_inode;
+ 
++#ifdef CS530
++	{
++		int ret;
++		if (inode->i_op->getattr) {
++			MEASURE_SINGLE("inode->getattr",
++				{ret = inode->i_op->getattr(path->mnt, path->dentry, stat);});
++			return ret;
++		}
++	}
++
++	MEASURE_SINGLE("generic_fillattr", generic_fillattr(inode, stat));
++#else
+ 	if (inode->i_op->getattr)
+ 		return inode->i_op->getattr(path->mnt, path->dentry, stat);
+ 
+ 	generic_fillattr(inode, stat);
++#endif
+ 	return 0;
+ }
+ 
+@@ -66,10 +82,20 @@ int vfs_getattr(struct path *path, struc
+ {
+ 	int retval;
+ 
++#ifdef CS530
++	MEASURE_SINGLE("security_inode_getattr",
++		{retval = security_inode_getattr(path->mnt, path->dentry);});
++	if (retval)
++		return retval;
++	MEASURE_SINGLE("vfs_getattr_nosec",
++		{retval = vfs_getattr_nosec(path, stat);});
++	return retval;
++#else
+ 	retval = security_inode_getattr(path->mnt, path->dentry);
+ 	if (retval)
+ 		return retval;
+ 	return vfs_getattr_nosec(path, stat);
++#endif
+ }
+ 
+ EXPORT_SYMBOL(vfs_getattr);
+@@ -80,8 +106,14 @@ int vfs_fstat(unsigned int fd, struct ks
+ 	int error = -EBADF;
+ 
+ 	if (f.file) {
++#ifdef CS530
++		MEASURE_SINGLE("vfs_getattr",
++			{ error = vfs_getattr(&f.file->f_path, stat); });
++		MEASURE_SINGLE("fdput", fdput(f));
++#else
+ 		error = vfs_getattr(&f.file->f_path, stat);
+ 		fdput(f);
++#endif
+ 	}
+ 	return error;
+ }
+@@ -203,7 +235,13 @@ SYSCALL_DEFINE2(lstat, const char __user
+ SYSCALL_DEFINE2(fstat, unsigned int, fd, struct __old_kernel_stat __user *, statbuf)
+ {
+ 	struct kstat stat;
++#ifdef CS530
++	int error;
++	MEASURE_SINGLE("vfs_fstat",
++		{ error = vfs_fstat(fd, &stat); });
++#else
+ 	int error = vfs_fstat(fd, &stat);
++#endif
+ 
+ 	if (!error)
+ 		error = cp_old_stat(&stat, statbuf);
