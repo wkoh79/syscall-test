@@ -1,4 +1,6 @@
 #!/bin/bash
+make clean; make
+
 echo "case 001"
 ./001_syscall-getpid |awk -f cal_sd.awk
 echo "case 002"
@@ -17,3 +19,5 @@ echo "case 008"
 ./008_stat-write |awk -f cal_sd.awk
 echo "case 009"
 ./009_pthread_stat |egrep "^stat " |awk -f cal_sd.awk
+echo "case 010"
+./010_fork_stat 1000 |egrep "^stat " |awk -f cal_sd.awk

@@ -68,10 +68,10 @@ int main(int argc, char *argv[])
 
   pthread_create(&thread_call, NULL, call_stat, file);
   //pthread_create(&thread_modi, NULL, modify_stat, file);
-  /*pthread_create(&thread_modi, NULL, modify_stat_no_write, file);*/
+  pthread_create(&thread_modi, NULL, modify_stat_no_write, file);
 
   pthread_join(thread_call, (void **) status);
-  /*pthread_join(thread_modi, (void **) status);*/
+  pthread_join(thread_modi, (void **) status);
 
   return 0;
 }
