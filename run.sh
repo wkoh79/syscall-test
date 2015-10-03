@@ -22,3 +22,5 @@ echo -n "case 009"
 ./009_pthread_stat |egrep "^stat " |awk -f cal_sd.awk
 echo -n "case 010"
 ./010_fork_stat 1000 |egrep "^stat " |awk -f cal_sd.awk
+echo -n "case 011"
+./011_fork_write 1000 |egrep "^write " |awk -f cal_sd.awk
