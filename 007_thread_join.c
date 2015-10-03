@@ -11,6 +11,7 @@ void *nested_thread_main(void *arg)
 {
   /*fprintf(stderr, "In nested threads %d\n", getpid());*/
   /*sleep(1);*/
+  pthread_exit((void *)0);
 }
 
 static void *thread_main(void *arg)

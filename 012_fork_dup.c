@@ -2,21 +2,28 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <errno.h>
 #include "measure.h"
 
 int fork_done = 0;
 
-void *modify_stat(void *arg)
+void *dup_thread(void *arg)
 {
   struct timespec ts1, ts2;
   struct stat *buf;
-  FILE *file = (FILE *)arg;
+  int fd = fileno((FILE *)arg);
+  int new_fd;
   long i;
 
-  while (!fork_done)
-    MEASURE_SINGLE("write", ts1, ts2, {
-                 fprintf(file, "Hello World\n");
-                 });
+  while (!fork_done) {
+    MEASURE_SINGLE("dup", ts1, ts2,
+		    { new_fd = dup(fd); });
+    if (new_fd == -1 && errno != EBADF) {
+      fprintf(stderr, "failed to dup\n");
+      pthread_exit((void *)-EINVAL);
+    }
+    close(new_fd);
+  }
   pthread_exit((void *)0);
 }
 
@@ -51,7 +58,7 @@ int main(int argc, char **argv)
     exit(1);
   }
 
-  pthread_create(&thread_call, NULL, modify_stat, file);
+  pthread_create(&thread_call, NULL, dup_thread, file);
 
   for (i = 0; i < nr_children; i++)
     MEASURE_SINGLE_EXCEPTION("fork", ts1, ts2,
@@ -75,6 +82,7 @@ int main(int argc, char **argv)
   } while (1);
 
   pthread_join(thread_call, (void **) thread_status);
+  fclose(file);
 
   return 0;
 }
