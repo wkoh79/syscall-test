@@ -12,7 +12,6 @@ void grandchild_thread(void)
 
 void child_thread(int nr_gchildren)
 {
-  struct timespec ts1, ts2;
   int j;
   int grandchild_status;
   int status = 0;
@@ -20,7 +19,7 @@ void child_thread(int nr_gchildren)
 
   /*fprintf(stderr, "create %d grandchildren\n", nr_gchildren);*/
   for (j = 0; j < nr_gchildren; j++) {
-    MEASURE_SINGLE_EXCEPTION("fork2", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("fork2",
       { grandchild_pid = fork(); },
       if (grandchild_pid == 0) {
         grandchild_thread();
@@ -30,7 +29,7 @@ void child_thread(int nr_gchildren)
 
   /*fprintf(stderr, "wait for grandchildren %d\n", getpid());*/
   do {
-    MEASURE_SINGLE_EXCEPTION("wait2", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("wait2",
       { wpid = wait(&status); },
       { if (wpid <= 0) break; });
   } while (1);
@@ -42,7 +41,6 @@ int main(int argc, char **argv)
   int status = 0;
   int i;
   int nr_children, nr_gchildren;
-  struct timespec ts1, ts2;
 
   if (argc < 3) {
       printf("usage: %s <nr_children> <nr_grandchildren\n", argv[0]);
@@ -55,7 +53,7 @@ int main(int argc, char **argv)
   setbuf(stdout, NULL);
   /*fprintf(stderr, "create %d children\n", nr_children);*/
   for (i = 0; i < nr_children; i++)
-    MEASURE_SINGLE_EXCEPTION("fork", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("fork",
       { child_pid = fork(); },
       if (child_pid == 0) {
         child_thread(nr_gchildren);
@@ -64,7 +62,7 @@ int main(int argc, char **argv)
 
   /*fprintf(stderr, "wait for children %d\n", getpid());*/
   do {
-    MEASURE_SINGLE_EXCEPTION("wait", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("wait",
       { wpid = wait(&status); },
       { if (wpid <= 0) break; });
   } while (1);

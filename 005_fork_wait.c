@@ -10,7 +10,6 @@ int main(int argc, char **argv)
   int status = 0;
   int i;
   int nr_children;
-  struct timespec ts1, ts2;
 
   if (argc < 2) {
     printf("usage: %s <nr_children>\n", argv[0]);
@@ -23,7 +22,7 @@ int main(int argc, char **argv)
   /*fprintf(stderr, "create %d children\n", nr_children);*/
 
   for (i = 0; i < nr_children; i++)
-    MEASURE_SINGLE_EXCEPTION("fork", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("fork",
       { child_pid = fork(); },
       if (child_pid == 0) {
         /*printf("In child process (pid: %d)\n", getpid());*/
@@ -33,7 +32,7 @@ int main(int argc, char **argv)
 
   /*fprintf(stderr, "wait for children\n");*/
   do {
-    MEASURE_SINGLE_EXCEPTION("wait", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("wait",
         { wpid = wait(&status); },
         { if (wpid <= 0) break; });
     /*printf("Exit status of %d was %d\n", (int) wpid, status);*/

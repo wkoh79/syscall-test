@@ -15,13 +15,12 @@ long global_i;
 
 void *call_stat(void *arg)
 {
-  struct timespec ts1, ts2;
   struct stat *buf;
   int fd = fileno((FILE *)arg);
   //long i;
 
   for (global_i = 0; global_i < ITERATION; global_i++)
-    MEASURE_ITER("stat", global_i, ts1, ts2, {
+    MEASURE_ITER("stat", global_i, {
                  fstat(fd, buf);}
   );
 }
@@ -29,11 +28,10 @@ void *call_stat(void *arg)
 void *modify_stat(void *arg)
 {
   FILE *file = (FILE *)arg;
-  struct timespec ts1, ts2;
   long i;
 
   for (i = 0; i < ITERATION; i++)
-    MEASURE_ITER("write", i, ts1, ts2, {
+    MEASURE_ITER("write", i, {
                  fprintf(file, "Hello World\n");
                  });
 }

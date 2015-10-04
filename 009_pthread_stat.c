@@ -15,12 +15,11 @@ int thread_create_done = 0;
 
 static void *stat_thread_main(void *arg)
 {
-  struct timespec ts1, ts2;
   struct stat *buf;
   int fd = fileno((FILE *)arg);
 
   while (!thread_create_done)
-    MEASURE_SINGLE("stat", ts1, ts2, 
+    MEASURE_SINGLE("stat",
 		{ fstat(fd, buf); });
 }
 
@@ -31,17 +30,16 @@ static void *nested_thread_main(void *arg)
 
 static void *create_thread_main(void *arg)
 {
-  struct timespec ts1, ts2;
   unsigned long status;
   long i = 0;
   int rc;
   pthread_t thread;
 
   for (i = 0; i < ITERATION; i++) {
-    MEASURE_SINGLE("nested_pthread_create", ts1, ts2,
+    MEASURE_SINGLE("nested_pthread_create",
       { pthread_create(&thread, NULL, nested_thread_main, NULL); });
 
-    MEASURE_SINGLE_EXCEPTION("nested_pthread_join", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("nested_pthread_join",
       { rc = pthread_join(thread, (void **)&status); },
       {
         if (rc != 0)
