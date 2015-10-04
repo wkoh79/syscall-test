@@ -23,6 +23,6 @@ END {
     }
   }
   _s = _s / (count - ignores);
-  printf("min: %dns max: %dns avg: %dns count %d ignores: %d SD: %d\n", min, max, avg, count, ignores, sqrt(_s));
+  printf("%10dns %10dns %10dns %10d %10d\n", min, max, avg, ignores, sqrt(_s));
   #print min, max, avg, count, ignores, sqrt(_s);
 }
