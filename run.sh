@@ -1,15 +1,15 @@
 #!/bin/bash
 make clean; make
 
-echo "                 min          max          avg     ignore      stdev"
+echo "                   min          max          avg      count    outlier      stdev"
 echo -n "case 001  "
 ./001_syscall-getpid |awk -f cal_sd.awk
 echo -n "case 002  "
 ./002_syscall-getpid2  |awk -f cal_sd.awk
 echo -n "case 003  "
-./003_malloc_pagefault 1024 2048 |egrep "^touch " |awk -f cal_sd.awk
+./003_malloc_pagefault 8 4 |egrep "^touch " |awk -f cal_sd.awk
 echo -n "case 004  "
-./004_mmap_pagefault 1024 2048 |egrep "^touch "|awk -f cal_sd.awk
+./004_mmap_pagefault 8 4 |egrep "^touch "|awk -f cal_sd.awk
 echo -n "case 005  "
 ./005_fork_wait 1000 |egrep "^fork " |awk -f cal_sd.awk
 echo -n "case 006  "

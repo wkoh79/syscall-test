@@ -46,7 +46,7 @@ void *modify_stat_no_write(void *arg)
   while (global_i < (ITERATION / 2));
     fprintf(file, "Hello World\n");
 
-  fprintf(stdout, "modi stat thread end & stat call #: %ld\n", global_i);
+  //fprintf(stdout, "modi stat thread end & stat call #: %ld\n", global_i);
 }
 
 int main(int argc, char *argv[])

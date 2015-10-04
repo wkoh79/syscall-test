@@ -14,15 +14,15 @@ BEGIN {
 }
 
 END {
+  avg = (sum / count);
   for (i = 0; i < count; i++) {
-    avg = (sum / count);
-    if (a[i] < (25000000)) {
+    if (a[i] < (avg * 10))
       _s += ((a[i] - avg) ^ 2);
-    } else {
-      ignores++;
-    }
+	else
+	  ignores++;
   }
+
   _s = _s / (count - ignores);
-  printf("%10dns %10dns %10dns %10d %10d\n", min, max, avg, ignores, sqrt(_s));
+  printf("%10dns %10dns %10dns %10d %10d %10d\n", min, max, avg, count, ignores, sqrt(_s));
   #print min, max, avg, count, ignores, sqrt(_s);
 }
