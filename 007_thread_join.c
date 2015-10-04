@@ -16,7 +16,6 @@ void *nested_thread_main(void *arg)
 
 static void *thread_main(void *arg)
 {
-  struct timespec ts1, ts2;
   unsigned long status = 0;
   long i;
   int rc;
@@ -29,11 +28,11 @@ static void *thread_main(void *arg)
   }
 
   for (i = 0; i < nr_nested_threads; i++)
-    MEASURE_SINGLE("nested_pthread_create", ts1, ts2,
+    MEASURE_SINGLE("nested_pthread_create",
       { pthread_create(nested_threads + i, NULL, &nested_thread_main, (void *)i); });
 
   for (i = 0; i < nr_nested_threads; i++)
-    MEASURE_SINGLE_EXCEPTION("nested_pthread_join", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("nested_pthread_join",
       { rc = pthread_join(nested_threads[i], (void **)&status); },
       {
         if (rc != 0)
@@ -50,7 +49,6 @@ int main(int argc, char **argv)
     unsigned long status;
     long i;
     int rc;
-    struct timespec ts1, ts2;
     pthread_t *threads;
 
     if (argc < 3) {
@@ -68,12 +66,12 @@ int main(int argc, char **argv)
     }
 
     for (i = 0; i < nr_threads; i++) {
-      MEASURE_SINGLE("pthread_create", ts1, ts2,
+      MEASURE_SINGLE("pthread_create",
         { pthread_create(threads + i, NULL, &thread_main, (void *)i); });
     }
 
     for (i = 0; i < nr_threads; i++)
-      MEASURE_SINGLE_EXCEPTION("pthread_join", ts1, ts2,
+      MEASURE_SINGLE_EXCEPTION("pthread_join",
         { rc = pthread_join(threads[i], (void **)&status); },
         {
           if (rc != 0)

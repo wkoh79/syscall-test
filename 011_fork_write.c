@@ -8,13 +8,12 @@ int fork_done = 0;
 
 void *modify_stat(void *arg)
 {
-  struct timespec ts1, ts2;
   struct stat *buf;
   FILE *file = (FILE *)arg;
   long i;
 
   while (!fork_done)
-    MEASURE_SINGLE("write", ts1, ts2, {
+    MEASURE_SINGLE("write", {
                  fprintf(file, "Hello World\n");
                  });
   pthread_exit((void *)0);
@@ -30,7 +29,6 @@ int main(int argc, char **argv)
   int status = 0;
   int i;
   int nr_children;
-  struct timespec ts1, ts2;
 
   FILE *file;
 
@@ -54,7 +52,7 @@ int main(int argc, char **argv)
   pthread_create(&thread_call, NULL, modify_stat, file);
 
   for (i = 0; i < nr_children; i++)
-    MEASURE_SINGLE_EXCEPTION("fork", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("fork",
       { child_pid = fork(); },
       if (child_pid == 0) {
         child_main();
@@ -68,7 +66,7 @@ int main(int argc, char **argv)
 
   /*fprintf(stderr, "wait for children\n");*/
   do {
-    MEASURE_SINGLE_EXCEPTION("wait", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("wait",
         { wpid = wait(&status); },
         { if (wpid <= 0) break; });
     /*printf("Exit status of %d was %d\n", (int) wpid, status);*/

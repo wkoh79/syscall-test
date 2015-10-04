@@ -9,11 +9,9 @@ int fork_done = 0;
 
 void *yield_thread(void *arg)
 {
-  struct timespec ts1, ts2;
-  struct stat *buf;
-
   while (!fork_done)
-    pthread_yield();
+    asm volatile ("pause");
+    /*sched_yield();*/
     /*sleep(1);*/
   pthread_exit((void *)0);
 }
@@ -28,9 +26,8 @@ int main(int argc, char **argv)
   int status = 0;
   int i;
   int nr_children;
-  struct timespec ts1, ts2;
 
-  FILE *file;
+  /*FILE *file;*/
 
   pthread_t thread_call;
   unsigned long thread_status;
@@ -43,16 +40,16 @@ int main(int argc, char **argv)
   sscanf(argv[1], "%d", &nr_children);
   setbuf(stdout, NULL);
 
-  file = fopen("stat.txt", "w");
-  if (file == NULL) {
-    fprintf(stderr, "input file error\n");
-    exit(1);
-  }
+  /*file = fopen("stat.txt", "w");*/
+  /*if (file == NULL) {*/
+    /*fprintf(stderr, "input file error\n");*/
+    /*exit(1);*/
+  /*}*/
 
   pthread_create(&thread_call, NULL, yield_thread, NULL);
 
   for (i = 0; i < nr_children; i++)
-    MEASURE_SINGLE_EXCEPTION("fork", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("fork",
       { child_pid = fork(); },
       if (child_pid == 0) {
         child_main();
@@ -66,14 +63,14 @@ int main(int argc, char **argv)
 
   /*fprintf(stderr, "wait for children\n");*/
   do {
-    MEASURE_SINGLE_EXCEPTION("wait", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("wait",
         { wpid = wait(&status); },
         { if (wpid <= 0) break; });
     /*printf("Exit status of %d was %d\n", (int) wpid, status);*/
   } while (1);
 
   pthread_join(thread_call, (void **) thread_status);
-  fclose(file);
+  /*fclose(file);*/
 
   return 0;
 }

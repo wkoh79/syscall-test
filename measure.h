@@ -3,33 +3,36 @@
 
 #include <time.h>
 
-#define MEASURE_ITER(name, iter, ts1, ts2, target_block)\
+#define MEASURE_ITER(name, iter, target_block)\
 {\
-  clock_gettime(CLOCK_REALTIME, &ts1);\
+  struct timespec ts1, ts2;\
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts1);\
   { target_block; }\
-  clock_gettime(CLOCK_REALTIME, &ts2);\
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts2);\
   \
   fprintf(stdout, "%s elapsed_time: %9.9f [%4ld] start: %ld.%9ld end: %ld.%9ld\n",\
 		  name, sub_ts(&ts2, &ts1), iter, ts1.tv_sec, ts1.tv_nsec, \
 		  ts2.tv_sec, ts2.tv_nsec);\
 }
 
-#define MEASURE_SINGLE(name, ts1, ts2, target_block)\
+#define MEASURE_SINGLE(name, target_block)\
 {\
-  clock_gettime(CLOCK_REALTIME, &ts1);\
+  struct timespec ts1, ts2;\
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts1);\
   { target_block; }\
-  clock_gettime(CLOCK_REALTIME, &ts2);\
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts2);\
   \
   fprintf(stdout, "%s elapsed_time: %9.9f start: %ld.%9ld end: %ld.%9ld\n",\
 		  name, sub_ts(&ts2, &ts1), ts1.tv_sec, ts1.tv_nsec, \
 		  ts2.tv_sec, ts2.tv_nsec);\
 }
 
-#define MEASURE_SINGLE_EXCEPTION(name, ts1, ts2, target_block, exception)\
+#define MEASURE_SINGLE_EXCEPTION(name, target_block, exception)\
 {\
-  clock_gettime(CLOCK_REALTIME, &ts1);\
+  struct timespec ts1, ts2;\
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts1);\
   { target_block; }\
-  clock_gettime(CLOCK_REALTIME, &ts2);\
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts2);\
   { exception; }\
   \
   fprintf(stdout, "%s elapsed_time: %9.9f start: %ld.%9ld end: %ld.%9ld\n",\

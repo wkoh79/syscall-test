@@ -10,7 +10,6 @@
 
 int main(int argc, char *argv[])
 {
-    struct timespec ts1, ts2;
     long i;
     unsigned long int pid;
 
@@ -20,9 +19,7 @@ int main(int argc, char *argv[])
     }
 
     for (i = 0; i < ITERATION; i++)
-        MEASURE_ITER("getpid", i, ts1, ts2, {
-                     getpid();}
-    );
+        MEASURE_ITER("getpid", i, {getpid();});
 
     return 0;
 }

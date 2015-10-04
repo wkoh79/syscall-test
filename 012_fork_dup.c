@@ -9,14 +9,13 @@ int fork_done = 0;
 
 void *dup_thread(void *arg)
 {
-  struct timespec ts1, ts2;
   struct stat *buf;
   int fd = fileno((FILE *)arg);
   int new_fd;
   long i;
 
   while (!fork_done) {
-    MEASURE_SINGLE("dup", ts1, ts2,
+    MEASURE_SINGLE("dup",
 		    { new_fd = dup(fd); });
     if (new_fd == -1 && errno != EBADF) {
       fprintf(stderr, "failed to dup\n");
@@ -37,7 +36,6 @@ int main(int argc, char **argv)
   int status = 0;
   int i;
   int nr_children;
-  struct timespec ts1, ts2;
 
   FILE *file;
 
@@ -61,7 +59,7 @@ int main(int argc, char **argv)
   pthread_create(&thread_call, NULL, dup_thread, file);
 
   for (i = 0; i < nr_children; i++)
-    MEASURE_SINGLE_EXCEPTION("fork", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("fork",
       { child_pid = fork(); },
       if (child_pid == 0) {
         child_main();
@@ -75,7 +73,7 @@ int main(int argc, char **argv)
 
   /*fprintf(stderr, "wait for children\n");*/
   do {
-    MEASURE_SINGLE_EXCEPTION("wait", ts1, ts2,
+    MEASURE_SINGLE_EXCEPTION("wait",
         { wpid = wait(&status); },
         { if (wpid <= 0) break; });
     /*printf("Exit status of %d was %d\n", (int) wpid, status);*/

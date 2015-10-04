@@ -10,7 +10,6 @@ int main(int argc, char **argv)
     unsigned long i, buf_size;
     int page_size = 4 << 10;    // 4KiB
     int iterations;
-    struct timespec ts1, ts2;
 
     if (argc < 2) {
         printf("usage: %s <mem_size_in_MB> <page_size_in_KB>\n", argv[0]);
@@ -30,7 +29,7 @@ int main(int argc, char **argv)
         }
     }
 
-    MEASURE_SINGLE_EXCEPTION("malloc", ts1, ts2, {
+    MEASURE_SINGLE_EXCEPTION("malloc", {
                              buf = malloc(buf_size);}
                              , if (!buf) {
                              printf("not sufficient memory: %ld\n",
@@ -39,11 +38,11 @@ int main(int argc, char **argv)
 
     iterations = buf_size / page_size;
     for (i = 0; i < iterations; i++)
-        MEASURE_ITER("touch", i, ts1, ts2, {
+        MEASURE_ITER("touch", i, {
                      *(buf + (i * page_size)) = 0x55;}
     );
 
-    MEASURE_SINGLE("free", ts1, ts2, {
+    MEASURE_SINGLE("free", {
                    free(buf);}
     );
     return 0;
