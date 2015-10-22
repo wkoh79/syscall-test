@@ -12,8 +12,8 @@ LIBS := -pthread -lrt
 all: $(TARGETS)
 
 $(TARGETS): %: %.o
-	gcc $(CFLAGS) -o $@ $< $(LIBS)
+	gcc $(CFLAGS) -o t12_$@ $< $(LIBS)
 
 clean:
-	rm -f $(OBJS) $(TARGETS)
+	rm -f $(OBJS) $(TARGETS) t12_*
 	rm -f stat.txt
