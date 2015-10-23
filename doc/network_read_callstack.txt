@@ -1,0 +1,85 @@
+# tracer: function_graph
+#
+# CPU  DURATION                  FUNCTION CALLS
+# |     |   |                     |   |   |   |
+  15)               |  SyS_read() {
+  15)               |    __fdget_pos() {
+  15)   0.103 us    |      __fget_light();
+  15)   0.356 us    |    }
+  15)               |    vfs_read() {
+  15)               |      rw_verify_area() {
+  15)               |        security_file_permission() {
+  15)               |          apparmor_file_permission() {
+  15)               |            common_file_perm() {
+  15)   0.069 us    |              aa_file_perm();
+  15)   0.374 us    |            }
+  15)   0.623 us    |          }
+  15)   0.040 us    |          __fsnotify_parent();
+  15)   0.089 us    |          fsnotify();
+  15)   1.497 us    |        }
+  15)   1.773 us    |      }
+  15)               |      __vfs_read() {
+  15)               |        do_sync_read() {
+  15)               |          sock_aio_read() {
+  15)               |            sock_aio_read.part.7() {
+  15)   0.033 us    |              iov_iter_init();
+  15)               |              security_socket_recvmsg() {
+  15)               |                apparmor_socket_recvmsg() {
+  15)               |                  aa_sock_msg_perm() {
+  15)               |                    aa_sk_perm.isra.4() {
+  15)   0.033 us    |                      aa_label_sk_perm.isra.2();
+  15)   0.329 us    |                    }
+  15)   0.610 us    |                  }
+  15)   0.879 us    |                }
+  15)   1.173 us    |              }
+  15)               |              inet_recvmsg() {
+  15)               |                tcp_recvmsg() {
+  15)               |                  lock_sock_nested() {
+  15)   0.031 us    |                    _cond_resched();
+  15)   0.038 us    |                    _raw_spin_lock_bh();
+  15)   0.028 us    |                    _raw_spin_unlock();
+  15)   0.042 us    |                    __local_bh_enable_ip();
+  15)   1.083 us    |                  }
+  15)               |                  skb_copy_datagram_iter() {
+  15)   0.096 us    |                    copy_to_iter();
+  15)   0.394 us    |                  }
+  15)   0.037 us    |                  tcp_rcv_space_adjust();
+  15)               |                  __kfree_skb() {
+  15)               |                    skb_release_all() {
+  15)               |                      skb_release_head_state() {
+  15)   0.036 us    |                        sock_rfree();
+  15)   0.455 us    |                      }
+  15)               |                      skb_release_data() {
+  15)               |                        skb_free_head() {
+  15)               |                          kfree() {
+  15)   0.059 us    |                            __slab_free();
+  15)   0.503 us    |                          }
+  15)   0.777 us    |                        }
+  15)   1.114 us    |                      }
+  15)   2.101 us    |                    }
+  15)               |                    kfree_skbmem() {
+  15)               |                      kmem_cache_free() {
+  15)   0.072 us    |                        __slab_free();
+  15)   0.345 us    |                      }
+  15)   0.634 us    |                    }
+  15)   3.240 us    |                  }
+  15)               |                  tcp_cleanup_rbuf() {
+  15)   0.048 us    |                    __tcp_select_window();
+  15)   0.412 us    |                  }
+  15)               |                  release_sock() {
+  15)   0.034 us    |                    _raw_spin_lock_bh();
+  15)   0.032 us    |                    tcp_release_cb();
+  15)               |                    _raw_spin_unlock_bh() {
+  15)   0.032 us    |                      __local_bh_enable_ip();
+  15)   0.297 us    |                    }
+  15)   1.120 us    |                  }
+  15)   8.146 us    |                }
+  15)   8.498 us    |              }
+  15) + 10.580 us   |            }
+  15) + 10.892 us   |          }
+  15) + 11.209 us   |        }
+  15) + 11.513 us   |      }
+  15)   0.035 us    |      __fsnotify_parent();
+  15)   0.046 us    |      fsnotify();
+  15) + 14.425 us   |    }
+  15) + 15.603 us   |  }

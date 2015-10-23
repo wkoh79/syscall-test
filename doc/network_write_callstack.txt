@@ -1,0 +1,457 @@
+# tracer: function_graph
+#
+# CPU  DURATION                  FUNCTION CALLS
+# |     |   |                     |   |   |   |
+  15)               |  SyS_write() {
+  15)               |    __fdget_pos() {
+  15)   0.056 us    |      __fget_light();
+  15)   0.334 us    |    }
+  15)               |    vfs_write() {
+  15)               |      rw_verify_area() {
+  15)               |        security_file_permission() {
+  15)               |          apparmor_file_permission() {
+  15)               |            common_file_perm() {
+  15)   0.035 us    |              aa_file_perm();
+  15)   0.346 us    |            }
+  15)   0.598 us    |          }
+  15)   0.882 us    |        }
+  15)   1.186 us    |      }
+  15)               |      do_sync_write() {
+  15)               |        sock_aio_write() {
+  15)   0.033 us    |          iov_iter_init();
+  15)               |          security_socket_sendmsg() {
+  15)               |            apparmor_socket_sendmsg() {
+  15)               |              aa_sock_msg_perm() {
+  15)               |                aa_sk_perm.isra.4() {
+  15)   0.029 us    |                  aa_label_sk_perm.isra.2();
+  15)   0.301 us    |                }
+  15)   0.559 us    |              }
+  15)   0.886 us    |            }
+  15)   1.238 us    |          }
+  15)               |          inet_sendmsg() {
+  15)               |            tcp_sendmsg() {
+  15)               |              lock_sock_nested() {
+  15)   0.028 us    |                _cond_resched();
+  15)   0.029 us    |                _raw_spin_lock_bh();
+  15)   0.031 us    |                _raw_spin_unlock();
+  15)   0.031 us    |                __local_bh_enable_ip();
+  15)   1.128 us    |              }
+  15)               |              tcp_send_mss() {
+  15)               |                tcp_current_mss() {
+  15)   0.100 us    |                  ipv4_mtu();
+  15)               |                  tcp_established_options() {
+  15)               |                    tcp_v4_md5_lookup() {
+  15)   0.041 us    |                      tcp_md5_do_lookup();
+  15)   0.324 us    |                    }
+  15)   0.654 us    |                  }
+  15)   1.410 us    |                }
+  15)   1.723 us    |              }
+  15)               |              sk_stream_alloc_skb() {
+  15)               |                __alloc_skb() {
+  15)               |                  kmem_cache_alloc_node() {
+  15)   0.027 us    |                    _cond_resched();
+  15)   0.370 us    |                  }
+  15)               |                  __kmalloc_reserve.isra.26() {
+  15)               |                    __kmalloc_node_track_caller() {
+  15)   0.061 us    |                      kmalloc_slab();
+  15)   0.034 us    |                      _cond_resched();
+  15)   0.677 us    |                    }
+  15)   0.942 us    |                  }
+  15)   0.269 us    |                  ksize();
+  15)   2.379 us    |                }
+  15)   2.699 us    |              }
+  15)   0.048 us    |              skb_entail();
+  15)   0.030 us    |              skb_put();
+  15)               |              tcp_push() {
+  15)               |                __tcp_push_pending_frames() {
+  15)               |                  tcp_write_xmit() {
+  15)               |                    tcp_init_tso_segs() {
+  15)   0.044 us    |                      tcp_set_skb_tso_segs();
+  15)   0.314 us    |                    }
+  15)   0.036 us    |                    tcp_nagle_check();
+  15)               |                    tcp_transmit_skb() {
+  15)               |                      skb_clone() {
+  15)               |                        __skb_clone() {
+  15)   0.086 us    |                          __copy_skb_header();
+  15)   0.405 us    |                        }
+  15)   0.703 us    |                      }
+  15)               |                      tcp_established_options() {
+  15)               |                        tcp_v4_md5_lookup() {
+  15)   0.057 us    |                          tcp_md5_do_lookup();
+  15)   0.341 us    |                        }
+  15)   0.604 us    |                      }
+  15)   0.029 us    |                      skb_push();
+  15)   0.044 us    |                      __tcp_select_window();
+  15)   0.040 us    |                      tcp_options_write();
+  15)               |                      tcp_v4_send_check() {
+  15)   0.049 us    |                        __tcp_v4_send_check();
+  15)   0.321 us    |                      }
+  15)               |                      ip_queue_xmit() {
+  15)               |                        __sk_dst_check() {
+  15)   0.064 us    |                          ipv4_dst_check();
+  15)   0.408 us    |                        }
+  15)   0.059 us    |                        skb_push();
+  15)               |                        ip_local_out_sk() {
+  15)               |                          __ip_local_out() {
+  15)               |                            nf_hook_slow() {
+  15)               |                              nf_iterate() {
+  15)   0.057 us    |                                ipv4_conntrack_defrag [nf_defrag_ipv4]();
+  15)               |                                ipv4_conntrack_local [nf_conntrack_ipv4]() {
+  15)               |                                  nf_conntrack_in [nf_conntrack]() {
+  15)   0.064 us    |                                    ipv4_get_l4proto [nf_conntrack_ipv4]();
+  15)   0.097 us    |                                    __nf_ct_l4proto_find [nf_conntrack]();
+  15)   0.096 us    |                                    tcp_error [nf_conntrack]();
+  15)               |                                    nf_ct_get_tuple [nf_conntrack]() {
+  15)   0.050 us    |                                      ipv4_pkt_to_tuple [nf_conntrack_ipv4]();
+  15)   0.048 us    |                                      tcp_pkt_to_tuple [nf_conntrack]();
+  15)   0.715 us    |                                    }
+  15)   0.061 us    |                                    hash_conntrack_raw [nf_conntrack]();
+  15)               |                                    __nf_conntrack_find_get [nf_conntrack]() {
+  15)   0.031 us    |                                      __local_bh_enable_ip();
+  15)   0.541 us    |                                    }
+  15)   0.033 us    |                                    tcp_get_timeouts [nf_conntrack]();
+  15)               |                                    tcp_packet [nf_conntrack]() {
+  15)   0.034 us    |                                      _raw_spin_lock_bh();
+  15)   0.042 us    |                                      get_conntrack_index [nf_conntrack]();
+  15)   0.043 us    |                                      nf_ct_seq_offset [nf_conntrack]();
+  15)               |                                      _raw_spin_unlock_bh() {
+  15)               |                                        __local_bh_enable_ip() {
+  15)               |                                        smp_reschedule_interrupt() {
+  15)   0.141 us    |                                          scheduler_ipi();
+  15)   0.465 us    |                                        }
+  15)   0.035 us    |                                        } /* __local_bh_enable_ip */
+  15)   1.462 us    |                                      }
+  15)               |                                      __nf_ct_refresh_acct [nf_conntrack]() {
+  15)               |                                        mod_timer_pending() {
+  15)               |                                          lock_timer_base.isra.36() {
+  15)   0.062 us    |                                            _raw_spin_lock_irqsave();
+  15)   0.322 us    |                                          }
+  15)   0.051 us    |                                          detach_if_pending();
+  15)   0.041 us    |                                          get_nohz_timer_target();
+  15)   0.028 us    |                                          _raw_spin_unlock();
+  15)   0.148 us    |                                          _raw_spin_lock();
+  15)               |                                          internal_add_timer() {
+  15)   0.113 us    |                                            __internal_add_timer();
+  15)   0.044 us    |                                            wake_up_nohz_cpu();
+  15)   1.038 us    |                                          }
+  15)   0.038 us    |                                          _raw_spin_unlock_irqrestore();
+  15)   3.431 us    |                                        }
+  15)   3.772 us    |                                      }
+  15)   7.069 us    |                                    }
+  15)               |                                    smp_reschedule_interrupt() {
+  15)   0.031 us    |                                      scheduler_ipi();
+  15)   0.290 us    |                                    }
+  15) + 12.330 us   |                                  }
+  15) + 12.658 us   |                                }
+  15)               |                                iptable_mangle_hook [iptable_mangle]() {
+  15)               |                                  ipt_do_table [ip_tables]() {
+  15)   0.034 us    |                                    __local_bh_enable_ip();
+  15)   0.564 us    |                                  }
+  15)   0.887 us    |                                }
+  15)               |                                iptable_nat_ipv4_local_fn [iptable_nat]() {
+  15)               |                                  nf_nat_ipv4_local_fn [nf_nat_ipv4]() {
+  15)               |                                    nf_nat_ipv4_fn [nf_nat_ipv4]() {
+  15)   0.035 us    |                                      nf_ct_nat_ext_add [nf_nat]();
+  15)   0.048 us    |                                      nf_nat_packet [nf_nat]();
+  15)   0.646 us    |                                    }
+  15)   0.968 us    |                                  }
+  15)   1.273 us    |                                }
+  15)               |                                iptable_filter_hook [iptable_filter]() {
+  15)               |                                  ipt_do_table [ip_tables]() {
+  15)   0.034 us    |                                    __local_bh_enable_ip();
+  15)   0.456 us    |                                  }
+  15)   0.734 us    |                                }
+  15) + 17.378 us   |                              }
+  15) + 17.670 us   |                            }
+  15) + 17.963 us   |                          }
+  15)               |                          ip_output() {
+  15)               |                            nf_hook_slow() {
+  15)               |                              nf_iterate() {
+  15)               |                                iptable_mangle_hook [iptable_mangle]() {
+  15)               |                                  ipt_do_table [ip_tables]() {
+  15)   0.035 us    |                                    __local_bh_enable_ip();
+  15)   0.344 us    |                                  }
+  15)   0.618 us    |                                }
+  15)               |                                iptable_nat_ipv4_out [iptable_nat]() {
+  15)               |                                  nf_nat_ipv4_out [nf_nat_ipv4]() {
+  15)               |                                    nf_nat_ipv4_fn [nf_nat_ipv4]() {
+  15)   0.027 us    |                                      nf_ct_nat_ext_add [nf_nat]();
+  15)   0.029 us    |                                      nf_nat_packet [nf_nat]();
+  15)   0.782 us    |                                    }
+  15)   1.310 us    |                                  }
+  15)   1.570 us    |                                }
+  15)   0.041 us    |                                ipv4_helper [nf_conntrack_ipv4]();
+  15)               |                                ipv4_confirm [nf_conntrack_ipv4]() {
+  15)   0.039 us    |                                  nf_ct_deliver_cached_events [nf_conntrack]();
+  15)   0.358 us    |                                }
+  15)   3.737 us    |                              }
+  15)   4.057 us    |                            }
+  15)               |                            ip_finish_output() {
+  15)   0.031 us    |                              ipv4_mtu();
+  15)   0.032 us    |                              skb_push();
+  15)               |                              dev_queue_xmit() {
+  15)               |                                __dev_queue_xmit() {
+  15)   0.038 us    |                                  netdev_pick_tx();
+  15)               |                                  validate_xmit_skb.isra.92.part.93() {
+  15)               |                                    netif_skb_features() {
+  15)   0.031 us    |                                      skb_network_protocol();
+  15)   0.383 us    |                                    }
+  15)   0.728 us    |                                  }
+  15)               |                                  dev_hard_start_xmit() {
+  15)               |                                    loopback_xmit() {
+  15)               |                                      tcp_wfree() {
+  15)   0.033 us    |                                        sk_free();
+  15)   0.323 us    |                                      }
+  15)   0.063 us    |                                      eth_type_trans();
+  15)               |                                      netif_rx() {
+  15)               |                                        netif_rx_internal() {
+  15)   0.094 us    |                                          ktime_get_with_offset();
+  15)               |                                          enqueue_to_backlog() {
+  15)   0.108 us    |                                            _raw_spin_lock();
+  15)   0.032 us    |                                            __raise_softirq_irqoff();
+  15)   0.028 us    |                                            _raw_spin_unlock();
+  15)   1.155 us    |                                          }
+  15)   1.788 us    |                                        }
+  15)   2.073 us    |                                      }
+  15)   3.332 us    |                                    }
+  15)   3.666 us    |                                  }
+  15)   0.042 us    |                                  __local_bh_enable_ip();
+  15)   5.688 us    |                                }
+  15)   5.977 us    |                              }
+  15)               |                              __local_bh_enable_ip() {
+  15)               |                                do_softirq.part.20() {
+  15)               |                                  __do_softirq() {
+  15)   0.026 us    |                                    msecs_to_jiffies();
+  15)               |                                    net_rx_action() {
+  15)               |                                      process_backlog() {
+  15)   0.035 us    |                                        _raw_spin_lock();
+  15)   0.034 us    |                                        _raw_spin_unlock();
+  15)               |                                        __netif_receive_skb() {
+  15)               |                                          __netif_receive_skb_core() {
+  15)               |                                            ip_rcv() {
+  15)               |                                              nf_hook_slow() {
+  15)               |                                                nf_iterate() {
+  15)   0.050 us    |                                                  ipv4_conntrack_defrag [nf_defrag_ipv4]();
+  15)               |                                                  ipv4_conntrack_in [nf_conntrack_ipv4]() {
+  15)   0.068 us    |                                                    nf_conntrack_in [nf_conntrack]();
+  15)   0.332 us    |                                                  }
+  15)               |                                                  iptable_mangle_hook [iptable_mangle]() {
+  15)               |                                                    ipt_do_table [ip_tables]() {
+  15)   0.047 us    |                                                      __local_bh_enable_ip();
+  15)   0.407 us    |                                                    }
+  15)   0.677 us    |                                                  }
+  15)               |                                                  iptable_nat_ipv4_in [iptable_nat]() {
+  15)               |                                                    nf_nat_ipv4_in [nf_nat_ipv4]() {
+  15)               |                                                      nf_nat_ipv4_fn [nf_nat_ipv4]() {
+  15)   0.028 us    |                                                        nf_ct_nat_ext_add [nf_nat]();
+  15)   0.037 us    |                                                        nf_nat_packet [nf_nat]();
+  15)   0.557 us    |                                                      }
+  15)   0.830 us    |                                                    }
+  15)   1.098 us    |                                                  }
+  15)   3.242 us    |                                                }
+  15)   3.506 us    |                                              }
+  15)               |                                              ip_rcv_finish() {
+  15)               |                                                ip_local_deliver() {
+  15)               |                                                  nf_hook_slow() {
+  15)               |                                                    nf_iterate() {
+  15)               |                                                      iptable_mangle_hook [iptable_mangle]() {
+  15)               |                                                        ipt_do_table [ip_tables]() {
+  15)   0.034 us    |                                                          __local_bh_enable_ip();
+  15)   1.279 us    |                                                        }
+  15)   1.537 us    |                                                      }
+  15)               |                                                      iptable_filter_hook [iptable_filter]() {
+  15)               |                                                        ipt_do_table [ip_tables]() {
+  15)   0.031 us    |                                                          __local_bh_enable_ip();
+  15)   0.669 us    |                                                        }
+  15)   1.019 us    |                                                      }
+  15)               |                                                      iptable_nat_ipv4_fn [iptable_nat]() {
+  15)               |                                                        nf_nat_ipv4_fn [nf_nat_ipv4]() {
+  15)   0.030 us    |                                                          nf_ct_nat_ext_add [nf_nat]();
+  15)   0.033 us    |                                                          nf_nat_packet [nf_nat]();
+  15)   0.638 us    |                                                        }
+  15)   0.950 us    |                                                      }
+  15)   0.026 us    |                                                      ipv4_helper [nf_conntrack_ipv4]();
+  15)               |                                                      ipv4_confirm [nf_conntrack_ipv4]() {
+  15)   0.044 us    |                                                        nf_ct_deliver_cached_events [nf_conntrack]();
+  15)   0.305 us    |                                                      }
+  15)   5.240 us    |                                                    }
+  15)   5.496 us    |                                                  }
+  15)               |                                                  ip_local_deliver_finish() {
+  15)   0.096 us    |                                                    raw_local_deliver();
+  15)               |                                                    tcp_v4_rcv() {
+  15)               |                                                      __inet_lookup_established() {
+  15)   0.035 us    |                                                        inet_ehashfn();
+  15)   0.465 us    |                                                      }
+  15)   0.036 us    |                                                      tcp_md5_do_lookup();
+  15)   0.042 us    |                                                      tcp_parse_md5sig_option();
+  15)               |                                                      sk_filter() {
+  15)               |                                                        security_sock_rcv_skb() {
+  15)   0.029 us    |                                                          apparmor_socket_sock_rcv_skb();
+  15)   0.366 us    |                                                        }
+  15)   0.649 us    |                                                      }
+  15)   0.032 us    |                                                      _raw_spin_lock();
+  15)               |                                                      tcp_prequeue() {
+  15)   0.054 us    |                                                        dst_release();
+  15)               |                                                        __wake_up_sync_key() {
+  15)   0.082 us    |                                                          _raw_spin_lock_irqsave();
+  15)               |                                                          __wake_up_common() {
+  15)               |                                                            autoremove_wake_function() {
+  15)               |                                                              default_wake_function() {
+  15)               |                                                                try_to_wake_up() {
+  15)   0.076 us    |                                                                  _raw_spin_lock_irqsave();
+  15)   0.055 us    |                                                                  task_waking_fair();
+  15)               |                                                                  select_task_rq_fair() {
+  15)   0.037 us    |                                                                    source_load();
+  15)   0.029 us    |                                                                    target_load();
+  15)   0.173 us    |                                                                    effective_load.isra.40();
+  15)   0.168 us    |                                                                    effective_load.isra.40();
+  15)               |                                                                    select_idle_sibling() {
+  15)   0.033 us    |                                                                      idle_cpu();
+  15)   0.037 us    |                                                                      cpus_share_cache();
+  15)   0.059 us    |                                                                      idle_cpu();
+  15)   0.850 us    |                                                                    }
+  15)   2.532 us    |                                                                  }
+  15)   0.111 us    |                                                                  _raw_spin_lock();
+  15)               |                                                                  ttwu_do_activate.constprop.93() {
+  15)               |                                                                    activate_task() {
+  15)               |                                                                      enqueue_task() {
+  15)   0.042 us    |                                                                        update_rq_clock.part.82();
+  15)               |                                                                        enqueue_task_fair() {
+  15)               |                                                                          enqueue_entity() {
+  15)   0.042 us    |                                                                            update_curr();
+  15)   0.063 us    |                                                                            update_cfs_rq_blocked_load();
+  15)   0.056 us    |                                                                            account_entity_enqueue();
+  15)   0.183 us    |                                                                            update_cfs_shares();
+  15)   0.028 us    |                                                                            place_entity();
+  15)   0.050 us    |                                                                            __enqueue_entity();
+  15)   1.893 us    |                                                                          }
+  15)               |                                                                          enqueue_entity() {
+  15)   0.038 us    |                                                                            update_curr();
+  15)   0.035 us    |                                                                            update_cfs_rq_blocked_load();
+  15)   0.048 us    |                                                                            account_entity_enqueue();
+  15)   0.082 us    |                                                                            update_cfs_shares();
+  15)   0.029 us    |                                                                            place_entity();
+  15)   0.028 us    |                                                                            __enqueue_entity();
+  15)   2.363 us    |                                                                          }
+  15)               |                                                                          enqueue_entity() {
+  15)   0.027 us    |                                                                            update_curr();
+  15)   0.043 us    |                                                                            update_cfs_rq_blocked_load();
+  15)   0.041 us    |                                                                            account_entity_enqueue();
+  15)   0.072 us    |                                                                            update_cfs_shares();
+  15)   0.033 us    |                                                                            place_entity();
+  15)   0.032 us    |                                                                            __enqueue_entity();
+  15)   1.833 us    |                                                                          }
+  15)               |                                                                          enqueue_entity() {
+  15)   0.037 us    |                                                                            update_curr();
+  15)   0.048 us    |                                                                            update_cfs_rq_blocked_load();
+  15)   0.126 us    |                                                                            account_entity_enqueue();
+  15)   0.072 us    |                                                                            update_cfs_shares();
+  15)   0.038 us    |                                                                            place_entity();
+  15)   0.029 us    |                                                                            __enqueue_entity();
+  15)   1.804 us    |                                                                          }
+  15)   0.033 us    |                                                                          hrtick_update();
+  15)   9.357 us    |                                                                        }
+  15)   9.954 us    |                                                                      }
+  15) + 10.202 us   |                                                                    }
+  15)               |                                                                    ttwu_do_wakeup() {
+  15)               |                                                                      check_preempt_curr() {
+  15)   0.181 us    |                                                                        resched_curr();
+  15)   0.523 us    |                                                                      }
+  15)   0.857 us    |                                                                    }
+  15) + 11.561 us   |                                                                  }
+  15)   0.031 us    |                                                                  _raw_spin_unlock();
+  15)   0.049 us    |                                                                  ttwu_stat();
+  15)   0.037 us    |                                                                  _raw_spin_unlock_irqrestore();
+  15) + 16.396 us   |                                                                }
+  15) + 16.656 us   |                                                              }
+  15) + 16.930 us   |                                                            }
+  15) + 17.228 us   |                                                          }
+  15)   0.038 us    |                                                          _raw_spin_unlock_irqrestore();
+  15) + 18.051 us   |                                                        }
+  15)               |                                                        sk_reset_timer() {
+  15)               |                                                          mod_timer() {
+  15)               |                                                            lock_timer_base.isra.36() {
+  15)   0.034 us    |                                                              _raw_spin_lock_irqsave();
+  15)   0.286 us    |                                                            }
+  15)   0.040 us    |                                                            detach_if_pending();
+  15)   0.038 us    |                                                            get_nohz_timer_target();
+  15)   0.029 us    |                                                            _raw_spin_unlock();
+  15)   0.111 us    |                                                            _raw_spin_lock();
+  15)               |                                                            internal_add_timer() {
+  15)   0.053 us    |                                                              __internal_add_timer();
+  15)   0.030 us    |                                                              wake_up_nohz_cpu();
+  15)   0.566 us    |                                                            }
+  15)   0.038 us    |                                                            _raw_spin_unlock_irqrestore();
+  15)   2.851 us    |                                                          }
+  15)   3.124 us    |                                                        }
+  15) + 22.078 us   |                                                      }
+  15)   0.033 us    |                                                      _raw_spin_unlock();
+  15) + 25.249 us   |                                                    }
+  15) + 25.968 us   |                                                  }
+  15) + 32.007 us   |                                                }
+  15) + 32.306 us   |                                              }
+  15) + 36.447 us   |                                            }
+  15) + 36.957 us   |                                          }
+  15) + 37.234 us   |                                        }
+  15)   0.034 us    |                                        _raw_spin_lock();
+  15)   0.028 us    |                                        _raw_spin_unlock();
+  15) + 39.121 us   |                                      }
+  15) + 39.788 us   |                                    }
+  15)   0.060 us    |                                    rcu_bh_qs();
+  15)   0.031 us    |                                    __local_bh_enable();
+  15) + 41.112 us   |                                  }
+  15) + 41.568 us   |                                }
+  15) + 41.933 us   |                              }
+  15) + 49.267 us   |                            }
+  15) + 53.978 us   |                          }
+  15) + 72.510 us   |                        }
+  15) + 73.831 us   |                      }
+  15) + 77.632 us   |                    }
+  15)               |                    tcp_event_new_data_sent() {
+  15)               |                      tcp_rearm_rto() {
+  15)               |                        sk_reset_timer() {
+  15)               |                          mod_timer() {
+  15)               |                            lock_timer_base.isra.36() {
+  15)   0.041 us    |                              _raw_spin_lock_irqsave();
+  15)   0.334 us    |                            }
+  15)   0.056 us    |                            detach_if_pending();
+  15)   0.054 us    |                            get_nohz_timer_target();
+  15)   0.057 us    |                            _raw_spin_unlock();
+  15)   0.053 us    |                            _raw_spin_lock();
+  15)               |                            internal_add_timer() {
+  15)   0.062 us    |                              __internal_add_timer();
+  15)   0.054 us    |                              wake_up_nohz_cpu();
+  15)   0.607 us    |                            }
+  15)   0.064 us    |                            _raw_spin_unlock_irqrestore();
+  15)   2.884 us    |                          }
+  15)   3.161 us    |                        }
+  15)   3.467 us    |                      }
+  15)   3.813 us    |                    }
+  15)               |                    tcp_schedule_loss_probe() {
+  15)   0.038 us    |                      usecs_to_jiffies();
+  15)   0.027 us    |                      msecs_to_jiffies();
+  15)               |                      sk_reset_timer() {
+  15)   0.052 us    |                        mod_timer();
+  15)   0.305 us    |                      }
+  15)   1.139 us    |                    }
+  15) + 84.489 us   |                  }
+  15) + 84.783 us   |                }
+  15) + 85.081 us   |              }
+  15)               |              release_sock() {
+  15)   0.029 us    |                _raw_spin_lock_bh();
+  15)   0.027 us    |                tcp_release_cb();
+  15)               |                _raw_spin_unlock_bh() {
+  15)   0.048 us    |                  __local_bh_enable_ip();
+  15)   0.303 us    |                }
+  15)   1.108 us    |              }
+  15) + 93.907 us   |            }
+  15) + 94.268 us   |          }
+  15) + 96.456 us   |        }
+  15) + 96.984 us   |      }
+  15)   0.036 us    |      __fsnotify_parent();
+  15)               |      fsnotify() {
+  15)   0.058 us    |        __srcu_read_lock();
+  15)   0.049 us    |        __srcu_read_unlock();
+  15)   0.611 us    |      }
+  15) + 99.948 us   |    }
+  15) ! 100.757 us  |  }

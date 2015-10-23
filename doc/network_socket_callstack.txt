@@ -1,0 +1,219 @@
+# tracer: function_graph
+#
+# CPU  DURATION                  FUNCTION CALLS
+# |     |   |                     |   |   |   |
+  13)               |  SyS_socket() {
+  13)               |    __sock_create() {
+  13)               |      security_socket_create() {
+  13)   0.122 us    |        apparmor_socket_create();
+  13)   0.527 us    |      }
+  13)               |      sock_alloc() {
+  13)               |        new_inode_pseudo() {
+  13)               |          alloc_inode() {
+  13)               |            sock_alloc_inode() {
+  13)               |              kmem_cache_alloc() {
+  13)   0.031 us    |                _cond_resched();
+  13)   0.375 us    |              }
+  13)               |              kmem_cache_alloc_trace() {
+  13)   0.025 us    |                _cond_resched();
+  13)   0.327 us    |              }
+  13)   0.029 us    |              __init_waitqueue_head();
+  13)   1.475 us    |            }
+  13)               |            inode_init_always() {
+  13)               |              make_kuid() {
+  13)   0.041 us    |                map_id_down();
+  13)   0.283 us    |              }
+  13)               |              make_kgid() {
+  13)   0.026 us    |                map_id_down();
+  13)   0.296 us    |              }
+  13)               |              security_inode_alloc() {
+  13)   0.028 us    |                cap_inode_alloc_security();
+  13)   0.338 us    |              }
+  13)   0.030 us    |              __mutex_init();
+  13)   2.303 us    |            }
+  13)   4.529 us    |          }
+  13)   0.031 us    |          _raw_spin_lock();
+  13)   0.033 us    |          _raw_spin_unlock();
+  13)   5.363 us    |        }
+  13)   0.042 us    |        get_next_ino();
+  13)   6.018 us    |      }
+  13)   0.035 us    |      try_module_get();
+  13)               |      inet_create() {
+  13)               |        sk_alloc() {
+  13)               |          sk_prot_alloc() {
+  13)               |            kmem_cache_alloc() {
+  13)   0.030 us    |              _cond_resched();
+  13)   0.548 us    |            }
+  13)               |            security_sk_alloc() {
+  13)               |              apparmor_sk_alloc_security() {
+  13)               |                kmem_cache_alloc_trace() {
+  13)   0.029 us    |                  _cond_resched();
+  13)   0.321 us    |                }
+  13)   0.572 us    |              }
+  13)   0.883 us    |            }
+  13)   0.027 us    |            try_module_get();
+  13)   2.650 us    |          }
+  13)   0.030 us    |          __init_waitqueue_head();
+  13)   3.410 us    |        }
+  13)               |        sock_init_data() {
+  13)   0.035 us    |          init_timer_key();
+  13)   0.457 us    |        }
+  13)               |        tcp_v4_init_sock() {
+  13)               |          tcp_init_sock() {
+  13)               |            tcp_init_xmit_timers() {
+  13)               |              inet_csk_init_xmit_timers() {
+  13)   0.033 us    |                init_timer_key();
+  13)   0.026 us    |                init_timer_key();
+  13)   0.026 us    |                init_timer_key();
+  13)   0.818 us    |              }
+  13)   1.171 us    |            }
+  13)   0.032 us    |            jiffies_to_usecs();
+  13)               |            tcp_assign_congestion_control() {
+  13)   0.028 us    |              try_module_get();
+  13)   0.341 us    |            }
+  13)   0.033 us    |            sock_update_memcg();
+  13)   0.075 us    |            __local_bh_enable_ip();
+  13)   3.401 us    |          }
+  13)   3.933 us    |        }
+  13)   8.910 us    |      }
+  13)   0.030 us    |      try_module_get();
+  13)   0.036 us    |      module_put();
+  13)               |      security_socket_post_create() {
+  13)   0.060 us    |        apparmor_socket_post_create();
+  13)   0.386 us    |      }
+  13) + 17.973 us   |    }
+  13)               |    get_unused_fd_flags() {
+  13)               |      __alloc_fd() {
+  13)   0.043 us    |        _raw_spin_lock();
+  13)   0.033 us    |        _raw_spin_unlock();
+  13)   0.649 us    |      }
+  13)   0.928 us    |    }
+  13)               |    sock_alloc_file() {
+  13)               |      d_alloc_pseudo() {
+  13)               |        __d_alloc() {
+  13)               |          kmem_cache_alloc() {
+  13)   0.027 us    |            _cond_resched();
+  13)   0.328 us    |          }
+  13)   0.105 us    |          d_set_d_op();
+  13)   1.119 us    |        }
+  13)   1.451 us    |      }
+  13)   0.040 us    |      mntget();
+  13)               |      d_instantiate() {
+  13)   0.028 us    |        _raw_spin_lock();
+  13)               |        __d_instantiate() {
+  13)   0.056 us    |          d_flags_for_inode();
+  13)   0.033 us    |          _raw_spin_lock();
+  13)   0.031 us    |          _raw_spin_unlock();
+  13)   0.030 us    |          _raw_spin_lock();
+  13)   0.031 us    |          _raw_spin_unlock();
+  13)   1.382 us    |        }
+  13)   0.028 us    |        _raw_spin_unlock();
+  13)               |        security_d_instantiate() {
+  13)   0.025 us    |          cap_d_instantiate();
+  13)   0.390 us    |        }
+  13)   2.760 us    |      }
+  13)               |      alloc_file() {
+  13)               |        get_empty_filp() {
+  13)               |          kmem_cache_alloc() {
+  13)   0.025 us    |            _cond_resched();
+  13)   0.333 us    |          }
+  13)               |          security_file_alloc() {
+  13)               |            apparmor_file_alloc_security() {
+  13)               |              kmem_cache_alloc_trace() {
+  13)   0.031 us    |                _cond_resched();
+  13)   0.310 us    |              }
+  13)   0.566 us    |            }
+  13)   0.859 us    |          }
+  13)   0.025 us    |          __mutex_init();
+  13)   2.058 us    |        }
+  13)   2.398 us    |      }
+  13)   7.745 us    |    }
+  13)               |    fd_install() {
+  13)               |      __fd_install() {
+  13)   0.027 us    |        _raw_spin_lock();
+  13)               |        printk() {
+  13)               |          vprintk_default() {
+  13)               |            vprintk_emit() {
+  13)   0.126 us    |              _raw_spin_lock();
+  13)               |              log_store() {
+  13)   0.136 us    |                log_make_free_space();
+  13)   0.456 us    |              }
+  13)   0.031 us    |              _raw_spin_unlock();
+  13)               |              console_trylock() {
+  13)               |                down_trylock() {
+  13)   0.146 us    |                  _raw_spin_lock_irqsave();
+  13)   0.041 us    |                  _raw_spin_unlock_irqrestore();
+  13)   0.657 us    |                }
+  13)   0.934 us    |              }
+  13)               |              console_unlock() {
+  13)   0.031 us    |                _raw_spin_lock_irqsave();
+  13)   0.038 us    |                _raw_spin_unlock_irqrestore();
+  13)   0.033 us    |                _raw_spin_lock_irqsave();
+  13)               |                msg_print_text() {
+  13)               |                  print_prefix() {
+  13)   0.112 us    |                    print_time.part.11();
+  13)   0.363 us    |                  }
+  13)               |                  print_prefix() {
+  13)   0.206 us    |                    print_time.part.11();
+  13)   0.472 us    |                  }
+  13)   1.433 us    |                }
+  13)   0.111 us    |                _raw_spin_unlock();
+  13)   0.032 us    |                call_console_drivers.constprop.25();
+  13)   0.124 us    |                _raw_spin_lock_irqsave();
+  13)   0.027 us    |                _raw_spin_unlock();
+  13)               |                up() {
+  13)   0.110 us    |                  _raw_spin_lock_irqsave();
+  13)   0.038 us    |                  _raw_spin_unlock_irqrestore();
+  13)   0.608 us    |                }
+  13)   0.124 us    |                _raw_spin_lock();
+  13)   0.039 us    |                _raw_spin_unlock_irqrestore();
+  13)   0.042 us    |                wake_up_klogd();
+  13)   5.516 us    |              }
+  13)   9.046 us    |            }
+  13)   9.297 us    |          }
+  13)   9.545 us    |        }
+  13)               |        printk() {
+  13)               |          vprintk_default() {
+  13)               |            vprintk_emit() {
+  13)   0.032 us    |              _raw_spin_lock();
+  13)               |              log_store() {
+  13)   0.050 us    |                log_make_free_space();
+  13)   0.365 us    |              }
+  13)   0.028 us    |              _raw_spin_unlock();
+  13)               |              console_trylock() {
+  13)               |                down_trylock() {
+  13)   0.144 us    |                  _raw_spin_lock_irqsave();
+  13)   0.040 us    |                  _raw_spin_unlock_irqrestore();
+  13)   0.645 us    |                }
+  13)   0.895 us    |              }
+  13)               |              console_unlock() {
+  13)   0.028 us    |                _raw_spin_lock_irqsave();
+  13)   0.038 us    |                _raw_spin_unlock_irqrestore();
+  13)   0.031 us    |                _raw_spin_lock_irqsave();
+  13)               |                msg_print_text() {
+  13)               |                  print_prefix() {
+  13)   0.104 us    |                    print_time.part.11();
+  13)   0.356 us    |                  }
+  13)               |                  print_prefix() {
+  13)   0.209 us    |                    print_time.part.11();
+  13)   0.463 us    |                  }
+  13)   1.397 us    |                }
+  13)   0.031 us    |                _raw_spin_unlock();
+  13)   0.032 us    |                call_console_drivers.constprop.25();
+  13)   0.033 us    |                _raw_spin_lock_irqsave();
+  13)   0.031 us    |                _raw_spin_unlock();
+  13)               |                up() {
+  13)   0.029 us    |                  _raw_spin_lock_irqsave();
+  13)   0.038 us    |                  _raw_spin_unlock_irqrestore();
+  13)   0.535 us    |                }
+  13)   0.028 us    |                _raw_spin_lock();
+  13)   0.038 us    |                _raw_spin_unlock_irqrestore();
+  13)   0.033 us    |                wake_up_klogd();
+  13)   4.983 us    |              }
+  13)   8.031 us    |            }
+  13)   8.272 us    |          }
+  13)   8.519 us    |        }
+  13)   0.031 us    |        _raw_spin_unlock();
+  13) + 19.662 us   |      }
+  13) + 19.915 us   |    }
+  13) + 47.685 us   |  }

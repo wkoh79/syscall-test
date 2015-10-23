@@ -1,0 +1,53 @@
+# tracer: function_graph
+#
+# CPU  DURATION                  FUNCTION CALLS
+# |     |   |                     |   |   |   |
+  13)               |  SyS_bind() {
+  13)               |    sockfd_lookup_light() {
+  13)               |      __fdget() {
+  13)   0.089 us    |        __fget_light();
+  13)   0.339 us    |      }
+  13)   0.659 us    |    }
+  13)   0.066 us    |    move_addr_to_kernel.part.18();
+  13)               |    security_socket_bind() {
+  13)               |      apparmor_socket_bind() {
+  13)               |        aa_sock_bind_perm() {
+  13)               |          aa_sk_perm.isra.4() {
+  13)   0.040 us    |            aa_label_sk_perm.isra.2();
+  13)   0.442 us    |          }
+  13)   0.806 us    |        }
+  13)   1.080 us    |      }
+  13)   1.418 us    |    }
+  13)               |    inet_bind() {
+  13)   0.040 us    |      inet_addr_type();
+  13)               |      lock_sock_nested() {
+  13)   0.026 us    |        _cond_resched();
+  13)   0.029 us    |        _raw_spin_lock_bh();
+  13)   0.028 us    |        _raw_spin_unlock();
+  13)   0.057 us    |        __local_bh_enable_ip();
+  13)   1.133 us    |      }
+  13)               |      inet_csk_get_port() {
+  13)               |        sock_i_uid() {
+  13)   0.049 us    |          _raw_read_lock_bh();
+  13)               |          _raw_read_unlock_bh() {
+  13)   0.032 us    |            __local_bh_enable_ip();
+  13)   0.295 us    |          }
+  13)   0.945 us    |        }
+  13)   0.081 us    |        _raw_spin_lock();
+  13)               |        inet_bind_bucket_create() {
+  13)   0.100 us    |          kmem_cache_alloc();
+  13)   0.409 us    |        }
+  13)   0.047 us    |        inet_bind_hash();
+  13)   0.033 us    |        _raw_spin_unlock();
+  13)   0.032 us    |        __local_bh_enable_ip();
+  13)   3.308 us    |      }
+  13)   0.036 us    |      dst_release();
+  13)               |      release_sock() {
+  13)   0.032 us    |        _raw_spin_lock_bh();
+  13)   0.060 us    |        tcp_release_cb();
+  13)               |        _raw_spin_unlock_bh() {
+  13)   0.033 us    |          __local_bh_enable_ip();
+  13)   0.306 us    |        }
+  13)   1.308 us    |      }
+  13)   7.774 us    |    }
+  13) + 11.219 us   |  }
